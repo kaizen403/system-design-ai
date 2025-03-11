@@ -23,6 +23,7 @@ const generationPrompt = ChatPromptTemplate.fromMessages([
     `You are a system design expert. Given an idea, generate a high-level architecture plan in PlantUML code only—do not include any extra text or internal reasoning. If any component is not connected (i.e., a box is not pointing anywhere), do not include it. Make it organized and clean.
 
 Requirements:
+- important thing is that you need to group things. use straight arrows to show the flow also along with others.
 - Plan the overall system architecture at a high level.
 - Use emojis as icons to represent key components (each on a new line).
 - Organize the diagram into clear sections.
@@ -32,6 +33,7 @@ Requirements:
 - Always make it high level and fancy.
 - Dont use emojis in aliases. and use space insread of new line in aliases.
 - IMPORTANT: For any component names that span multiple lines, use the newline escape sequence (\\n) instead of literal newlines.
+- I want them organised not clutered here and there. try to group services
 
 Here is an example for reference:
 @startuml

@@ -1,12 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import type React from "react";
+import { useState, useRef, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Sparkles, ArrowRight } from "lucide-react";
 
 export default function Home() {
   const [idea, setIdea] = useState("");
   const [svgOutput, setSvgOutput] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [cursorVisible, setCursorVisible] = useState(true);
+
+  // Blinking cursor effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCursorVisible((prev) => !prev);
+    }, 530);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Focus input on load
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -32,35 +52,107 @@ export default function Home() {
   }
 
   return (
-    <div style={containerStyle}>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-50 flex flex-col items-center justify-center p-8 transition-all duration-500 ease-in-out">
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]"></div>
+      </div>
+
+      {/* Homepage remains unchanged */}
       {!submitted && (
-        <div style={introStyle}>
-          <h1 style={headingStyle}>System Design AI</h1>
-          <p style={subheadingStyle}>Idea into reality in seconds.</p>
-          <form onSubmit={handleSubmit} style={formStyle}>
-            <input
-              type="text"
-              placeholder="Enter your idea here"
-              value={idea}
-              onChange={(e) => setIdea(e.target.value)}
-              style={inputStyle}
-              autoFocus
-            />
-            <button type="submit" style={buttonStyle}>
-              Generate
-            </button>
-          </form>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="text-center mb-12 relative z-10"
+        >
+          <motion.div
+            className="inline-flex items-center gap-2 px-4 py-1.5 mb-6 rounded-full bg-blue-100 text-blue-700"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+          >
+            <Sparkles size={16} className="text-blue-500" />
+            <span className="text-sm font-medium">AI-Powered Design</span>
+          </motion.div>
+
+          <motion.h1
+            className="text-5xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-sky-600 to-indigo-600 mb-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            System Design AI
+          </motion.h1>
+
+          <motion.p
+            className="text-xl text-gray-600 mb-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            Idea into reality in seconds.
+          </motion.p>
+
+          <motion.form
+            onSubmit={handleSubmit}
+            className="relative max-w-2xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+          >
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-sky-500 to-indigo-500 rounded-lg blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+              <div className="relative flex items-center">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  placeholder="Enter your idea here"
+                  value={idea}
+                  onChange={(e) => setIdea(e.target.value)}
+                  className="w-full px-6 py-4 text-lg rounded-lg border-2 border-gray-200 bg-white shadow-xl focus:ring-2 focus:ring-blue-500 transition-all duration-300"
+                  autoFocus
+                />
+                {idea.length === 0 && (
+                  <span
+                    className={`absolute left-[24px] h-5 w-[2px] bg-gray-400 ${
+                      cursorVisible ? "opacity-100" : "opacity-0"
+                    } transition-opacity duration-100`}
+                  ></span>
+                )}
+                <button
+                  type="submit"
+                  className="absolute right-2 h-12 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-md shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
+                >
+                  Generate
+                  <ArrowRight size={16} className="ml-1" />
+                </button>
+              </div>
+            </div>
+          </motion.form>
+        </motion.div>
       )}
+
       {submitted && loading && (
-        <div style={loadingStyle}>
-          <div className="spinner" style={spinnerStyle}></div>
-          <p style={loadingTextStyle}>Generating architecture...</p>
+        <div
+          style={{ textAlign: "center", animation: "fadeIn 1s ease-in-out" }}
+        >
+          <div className="spinner" style={{ marginBottom: "1rem" }}></div>
+          <p style={{ fontSize: "1.5rem" }}>Generating architecture...</p>
         </div>
       )}
+
+      {/* SVG output with white background */}
       {submitted && !loading && svgOutput && (
         <div
-          style={svgContainerStyle}
+          style={{
+            marginTop: "2rem",
+            maxWidth: "600px",
+            width: "100%",
+            textAlign: "center",
+            backgroundColor: "white",
+            padding: "1rem",
+            borderRadius: "8px",
+          }}
           dangerouslySetInnerHTML={{ __html: svgOutput }}
         ></div>
       )}
@@ -83,80 +175,20 @@ export default function Home() {
             transform: rotate(360deg);
           }
         }
+        .bg-grid-pattern {
+          background-size: 40px 40px;
+          background-image: linear-gradient(
+              to right,
+              rgba(128, 128, 128, 0.1) 1px,
+              transparent 1px
+            ),
+            linear-gradient(
+              to bottom,
+              rgba(128, 128, 128, 0.1) 1px,
+              transparent 1px
+            );
+        }
       `}</style>
     </div>
   );
 }
-
-// Inline styles with gradient background added
-const containerStyle: React.CSSProperties = {
-  background: "linear-gradient(135deg, #f7f7f7, #e0e0e0)",
-  minHeight: "100vh",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
-  alignItems: "center",
-  transition: "all 0.5s ease-in-out",
-  padding: "2rem",
-};
-
-const introStyle: React.CSSProperties = {
-  textAlign: "center",
-  animation: "fadeIn 1s ease-in-out",
-};
-
-const headingStyle: React.CSSProperties = {
-  fontSize: "3rem",
-  marginBottom: "0.5rem",
-  fontWeight: "bold",
-};
-
-const subheadingStyle: React.CSSProperties = {
-  fontSize: "1.5rem",
-  marginBottom: "2rem",
-};
-
-const formStyle: React.CSSProperties = {
-  display: "flex",
-  justifyContent: "center",
-};
-
-const inputStyle: React.CSSProperties = {
-  width: "500px",
-  padding: "1rem",
-  fontSize: "1.25rem",
-  borderRadius: "8px",
-  border: "2px solid #ddd",
-  outline: "none",
-  transition: "all 0.3s ease",
-};
-
-const buttonStyle: React.CSSProperties = {
-  marginLeft: "1rem",
-  padding: "1rem 2rem",
-  fontSize: "1.25rem",
-  borderRadius: "8px",
-  border: "none",
-  background: "#0070f3",
-  color: "#fff",
-  cursor: "pointer",
-  transition: "all 0.3s ease",
-};
-
-const loadingStyle: React.CSSProperties = {
-  textAlign: "center",
-  animation: "fadeIn 1s ease-in-out",
-};
-
-const spinnerStyle: React.CSSProperties = {
-  marginBottom: "1rem",
-};
-
-const loadingTextStyle: React.CSSProperties = {
-  fontSize: "1.5rem",
-};
-
-const svgContainerStyle: React.CSSProperties = {
-  animation: "fadeIn 1s ease-in-out",
-  textAlign: "center",
-};
