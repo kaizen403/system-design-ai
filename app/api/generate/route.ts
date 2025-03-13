@@ -12,7 +12,7 @@ const apiKey = "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";
 const llm = new ChatGroq({
   apiKey: apiKey,
   model: "deepseek-r1-distill-llama-70b",
-  temperature: 0,
+  temperature: 0.4,
   maxTokens: undefined,
   maxRetries: 2,
 });
